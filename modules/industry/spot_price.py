@@ -9,6 +9,7 @@ from datetime import datetime
 from fastapi import APIRouter, Query, HTTPException, Body, Depends
 from fastapi.encoders import jsonable_encoder
 from db.mysql_z import MySqlZ
+from utils.constant import VARIETY_ZH
 from .models import SpotPriceItem, ModifySpotItem
 
 
@@ -52,6 +53,11 @@ async def query_spot_price(query_date: str = Depends(verify_date)):
         )
         data = cursor.fetchall()
 
+    for spot_item in data:
+        spot_item["variety_zh"] = VARIETY_ZH.get(spot_item["variety_en"], spot_item["variety_en"])
+        spot_item["spot_price"] = int(spot_item["spot_price"])
+        spot_item["price_increase"] = int(spot_item["price_increase"])
+        spot_item["date"] = datetime.strptime(spot_item["date"], "%Y%m%d").strftime("%Y-%m-%d")
     return {"message": "获取{}现货价格数据成功!".format(query_date), "data": data}
 
 
@@ -66,3 +72,20 @@ async def modify_spot_price(record_id: int, spot_item: ModifySpotItem = Body(...
         )
     return {"message": "修改ID = {}的现货数据成功!".format(record_id)}
 
+
+@spot_price_router.get("/latest-spotprice/", summary="首页即时现货报价")
+def get_latest_spot_price(count: int = Query(5, ge=5, le=50)):
+    with MySqlZ() as cursor:
+        cursor.execute(
+            "SELECT id,create_time,`date`,variety_en,spot_price,price_increase "
+            "FROM industry_spot_price "
+            "ORDER BY id DESC LIMIT %s;",
+            (count, )
+        )
+        sport_prices = cursor.fetchall()
+    for spot_item in sport_prices:
+        spot_item["variety_zh"] = VARIETY_ZH.get(spot_item["variety_en"], spot_item["variety_en"])
+        spot_item["spot_price"] = int(spot_item["spot_price"])
+        spot_item["price_increase"] = int(spot_item["price_increase"])
+        spot_item["date"] = datetime.strptime(spot_item["date"], "%Y%m%d").strftime("%m-%d")
+    return {"message": "获取指定数量现货报价成功!", "sport_prices": sport_prices}

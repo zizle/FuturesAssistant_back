@@ -7,6 +7,7 @@ API-1: 短信通的上传保存(未使用)
 API-2: 根据起始时间查询今日短信通
 API-3: 删除一条短信通
 API-4: 修改一条短信通
+API-5: 获取最新的x条短信通
 """
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, Query, HTTPException, Body
@@ -108,3 +109,18 @@ async def modify_short_message(
                 "UPDATE short_message SET content=%s WHERE id=%s;", (message_content, msg_id, )
             )
     return {"message": "操作完成!"}
+
+
+@shortmsg_router.get("/instant-message/", summary="获取最新的x条短信通信息")
+async def get_instant_message(count: int = Query(5, ge=1, le=50)):
+    with MySqlZ() as cursor:
+        cursor.execute(
+            "SELECT id, DATE_FORMAT(create_time,'%%Y-%%m-%%dT%%H:%%i:%%S') AS create_time,"
+            "DATE_FORMAT(create_time,'%%H:%%i') AS time_str,"
+            "creator,content "
+            "FROM short_message "
+            "ORDER BY id DESC LIMIT %s;",
+            (count, )
+        )
+        short_messages = cursor.fetchall()
+    return {"message": "获取最新短信通成功!", "short_messages": short_messages}
