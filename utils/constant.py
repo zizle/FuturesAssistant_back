@@ -148,3 +148,11 @@ VARIETY_EN = {
     '玉米淀粉': 'CS',
     '中质含硫原油': 'SC',
 }
+
+REPORT_TYPES = {
+    "daily": "每日报告",
+    "weekly": "周度报告",
+    "monthly": "月季报告",
+    "annual": "年度报告",
+    "others": "其他"
+}

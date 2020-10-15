@@ -16,6 +16,7 @@ with MySqlZ() as cursor:
         "`date` VARCHAR(10) NOT NULL,"
         "`creator` INT(11) NOT NULL,"
         "`variety_en` VARCHAR(20) NOT NULL,"
+        "`title` VARCHAR(128) NOT NULL,"
         "`report_type` ENUM('daily','weekly','monthly','annual','special', 'others') NOT NULL DEFAULT 'others',"
         "`filepath` VARCHAR (512) NOT NULL,"
         "`is_active` BIT NOT NULL DEFAULT 1"

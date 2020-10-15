@@ -97,6 +97,7 @@ async def create_report_with_wechat_files(
     # 新名称
     if file_item.rename_text:
         filename = file_item.rename_text + ".pdf"
+    title = os.path.splitext(filename)[0]
     variety_en = file_item.relative_varieties.split(';')[0]
     date_folder = file_item.date[:7]  # 以月为单位保存
     # 创建新文件所在路径
@@ -113,9 +114,9 @@ async def create_report_with_wechat_files(
         )
         if not cursor.fetchone():
             cursor.execute(
-                "INSERT INTO research_report (`date`,creator,variety_en,report_type,filepath) "
-                "VALUES (%s,%s,%s,%s,%s);",
-                (file_item.date, user_id, file_item.relative_varieties, file_item.report_type, sql_path)
+                "INSERT INTO research_report (`date`,creator,variety_en,title,report_type,filepath) "
+                "VALUES (%s,%s,%s,%s,%s,%s);",
+                (file_item.date, user_id, file_item.relative_varieties, title, file_item.report_type, sql_path)
             )
         shutil.move(filepath, report_path)  # 将文件移动到目标位置
 

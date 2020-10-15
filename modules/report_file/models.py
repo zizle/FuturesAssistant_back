@@ -2,7 +2,15 @@
 # @File  : models.py
 # @Time  : 2020-09-30 09:14
 # @Author: zizle
+from enum import Enum
 from pydantic import BaseModel
+
+
+class ReportType(str, Enum):
+    daily = "daily"
+    weekly = "weekly"
+    monthly = "monthly"
+    annual = "annual"
 
 
 class ReportFileItem(BaseModel):
